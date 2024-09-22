@@ -510,7 +510,7 @@ def main():
     epilog = """
     Example usage:
     --------------
-    python3 k_fold_cross_validation.py GAF_domain GAF_training_data.fasta 5 100,90,80,70,60 negative_data.fasta
+    python3 k_fold_cross_validation.py GAF_domain -ts GAF_training_data.fasta -ns negative_data.fasta -k 5 -r 100,90,80,70,60
     """
 
     parser = argparse.ArgumentParser(
@@ -524,26 +524,29 @@ def main():
         help="Job name"
     )
     parser.add_argument(
-        "training_data_file",
+        "-ts", "--training_data_file",
         type=argparse.FileType("r"),
-        help="Training data in fasta format"
+        required=True,
+        help="Training data in FASTA format"
     )
     parser.add_argument(
-        "k_folds",
+        "-ns", "--negative_set_file",
+        type=argparse.FileType("r"),
+        help="Negative testing data in fasta format"
+    )
+    parser.add_argument(
+        "-k", "--k_folds",
         type=int,
+        default="5",
         help="Number of k fold cross validation"
     )
     parser.add_argument(
-        "redundancy",
+        "-r", "--redundancy",
         type=str,
+        default="100",
         help="""Redudancy levels to be evaluated as a hyperparameter. Set a
                 sequence of numbers from 100 to 40 separated with comma.
                 Example: 100,90,80,70"""
-    )
-    parser.add_argument(
-        "negative_set_file",
-        type=argparse.FileType("r"),
-        help="Negative testing data in fasta format"
     )
 
     args = parser.parse_args()
