@@ -1,71 +1,72 @@
-# Scripts para Validación Cruzada y HMMsearch en Lote
+# Scripts for Cross-Validation and Batch HMMsearch
 
-Este repositorio contiene scripts diseñados para la automatización del procesamiento de secuencias biológicas con el software HMMER. 
-El script `k_fold_cross_validation.py` permite la creación de modelos ocultos de Markov (HMM) y realización de validaciones cruzadas de k iteraciones a un conjunto de secuencias de interés.
-El script `batch_hmmsearch.py` ejecuta en lote un escaneo de un HMM a un conjunto de archivos .FASTA, aislado las secuencias encontradas y cuantificándolas por archivo.
+This repository contains scripts designed for automating the processing of biological sequences using the HMMER software.  
+The `k_fold_cross_validation.py` script allows the creation of Hidden Markov Models (HMM) and performs k-fold cross-validation on a set of target sequences.  
+The `batch_hmmsearch.py` script runs an HMM scan in batch mode on a set of `.FASTA` files, isolates the detected sequences, and quantifies them per file.
 
-## Requisitos del Sistema
+## System Requirements
 
-- Sistema operativo: Linux
-- Dependencias de software externo:
-  - [hmmer](http://hmmer.org/) (verificado en versión 3.3.2)
-  - [clustalo](http://www.clustal.org/omega/) (verificado en versión 1.2.4)
-  - [seqkit](https://bioinf.shenwei.me/seqkit/) (verificado en versión 2.1.0)
-  - [cd-hit](cd-hit (https://github.com/weizhongli/cdhit/tree/master)) (verificado en versión 4.8.1)
-- Paquetes de Python:
-  - [Biopython](https://biopython.org/) (verificado en versión 1.84)
+- Operating System: Linux  
+- External software dependencies:  
+  - [hmmer](http://hmmer.org/) (tested on version 3.3.2)  
+  - [clustalo](http://www.clustal.org/omega/) (tested on version 1.2.4)  
+  - [seqkit](https://bioinf.shenwei.me/seqkit/) (tested on version 2.1.0)  
+  - [cd-hit](https://github.com/weizhongli/cdhit/tree/master) (tested on version 4.8.1)  
+- Python packages:  
+  - [Biopython](https://biopython.org/) (tested on version 1.84)  
 
-**Nota**: 
-1. Instalar `hmmer`, `clustalo` y `seqkit` de manera separada y asegurarse de que estén accesibles en el PATH del sistema. También asegúrate de tener `Biopython` instalado en tu entorno de Python.
-2. La clase `HmmDataProcessor`, contenida en este repositorio, es requerida para la ejecución de los scripts debido a que posee funciones para el procesamiento del resultado del hmmsearch que es utilizado por ambos scripts.
+**Note**:  
+1. Install `hmmer`, `clustalo`, and `seqkit` separately and ensure they are accessible in the system PATH. Also, make sure `Biopython` is installed in your Python environment.  
+2. The `HmmDataProcessor` class, contained in this repository, is required for script execution as it provides functions for processing `hmmsearch` results used by both scripts.  
 
 ## Scripts
 
-### 1. Validación Cruzada de k iteraciones
+### 1. k-Fold Cross-Validation  
 
-Este script ejecuta una validación cruzada de k iteraciones para datos de secuencias de biológicas con diferentes niveles de redundancia, que se evalúan como un hiperparámetro. También requiere un conjunto de datos negativos para pruebas.
-Para cada redundancia establecida retorna una carpeta que contiene la data posterior a la reducción de redundancia, la partición de la secuencias para las k iteraciones, los alineamientos múltiples de secuencia, los HMM y los resultados del `hmmsearch` en cada iteración.
-Adicionalmente crea un archivo `results.csv` que cuantifica los verdaderos positivos (VP), falsos negativos (FN), verdaderos negativos (VN) y falsos positivos (FP) de todos los modelos creados.
+This script performs k-fold cross-validation on biological sequence datasets with different levels of redundancy, which are evaluated as a hyperparameter. A negative dataset for testing is also required.  
+For each redundancy level, it generates a folder containing redundancy-reduced data, sequence partitions for k iterations, multiple sequence alignments, HMMs, and `hmmsearch` results for each iteration.  
+Additionally, it creates a `results.csv` file that quantifies true positives (TP), false negatives (FN), true negatives (TN), and false positives (FP) for all generated models.  
 
-#### Uso
+#### Usage  
 
 ```bash
-python3 k_fold_cross_validation.py <nombre_trabajo> -ts <archivo_entrenamiento.fasta> -ns <archivo_negativo.fasta> -k <k_folds> -r <redundancia>
+python3 k_fold_cross_validation.py <job_name> -ts <training_data.fasta> -ns <negative_data.fasta> -k <k_folds> -r <redundancy>
 ```
 
-#### Ejemplo
+#### Example  
 
 ```bash
 python3 k_fold_cross_validation.py GAF_domain -ts GAF_training_data.fasta -ns negative_data.fasta -k 5 -r 100,90,80,70,60
 ```
 
-#### Parámetros
-- job_name: Nombre del trabajo.
-- -ts, --training_data_file: Archivo de datos de entrenamiento en formato FASTA.
-- -ns, --negative_set_file: Archivo de conjunto negativo en formato FASTA.
-- -k, --k_folds: Número de particiones para la validación cruzada (predeterminado: 5).
-- -r, --redundancy: Niveles de redundancia a evaluar como hiperparámetro, separados por comas (predeterminado: 100).
+#### Parameters  
+- job_name: Job name.  
+- -ts, --training_data_file: Training data file in FASTA format.  
+- -ns, --negative_set_file: Negative set file in FASTA format.  
+- -k, --k_folds: Number of partitions for cross-validation (default: 5).  
+- -r, --redundancy: Redundancy levels to evaluate as a hyperparameter, separated by commas (default: 100).  
 
-### 2. Búsqueda HMM en Lote
+### 2. Batch HMM Search  
 
-Este script ejecuta `hmmsearch` con un HMM dado en un lote de archivos FASTA especificados en un archivo CSV.
-Cada archivo analizado genera una carpeta que contiene el resultado del `hmmsearch` y un archivo FASTA con las secuencias encontradas bajo el umbral de E-value establecido.
-Además, crea un archivo `quantification.csv` con la cantidad de proteínas encontradas en cada archivo FASTA.
+This script runs `hmmsearch` with a given HMM on a batch of FASTA files specified in a CSV file.  
+Each analyzed file generates a folder containing the `hmmsearch` result and a FASTA file with sequences found below the specified E-value threshold.  
+Additionally, it creates a `quantification.csv` file with the number of detected proteins per FASTA file.  
 
-#### Uso
+#### Usage  
 
 ```bash
-python3 batch_hmmsearch.py <nombre_trabajo> <HMM.hmm> <archivos_fasta.csv> <valor_e>
+python3 batch_hmmsearch.py <job_name> <HMM.hmm> <FASTA_files.csv> <E_value>
 ```
 
-#### Ejemplo
+#### Example  
 
 ```bash
 python3 batch_hmmsearch.py GAF HMM.hmm FASTA_files.csv 1e-5
 ```
 
-#### Parámetros
-- job_name: Nombre del trabajo.
-- hmm_path: Ruta al archivo HMM.
-- FASTA_files: Archivo CSV con las rutas de los archivos FASTA.
-- E_value: Umbral de valor E para las búsquedas.
+#### Parameters  
+- job_name: Job name.  
+- hmm_path: Path to the HMM file.  
+- FASTA_files: CSV file containing paths to FASTA files.
+- E_value: E-value threshold for searches.
+
